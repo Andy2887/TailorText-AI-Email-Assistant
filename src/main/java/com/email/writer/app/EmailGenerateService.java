@@ -19,8 +19,8 @@ public class EmailGenerateService {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    public EmailGenerateService(WebClient webClient) {
-        this.webClient = webClient;
+    public EmailGenerateService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
     }
 
     public String GenerateEmailReply(EmailRequest emailRequest){
@@ -40,6 +40,7 @@ public class EmailGenerateService {
         String response = webClient.post()
                 .uri(geminiApiUrl + geminiApiKey)
                 .header("Content-Type", "application/json")
+                .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -68,7 +69,7 @@ public class EmailGenerateService {
 
     private String BuildPrompt(EmailRequest emailRequest) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Generate a Professional Email Reply for the following email content. Please don't generate a subject line.");
+        prompt.append("Revise the email for the following email content. Please don't generate a subject line. Please don't generate anything else besides the email content.");
         if (emailRequest.getContext() != null && !emailRequest.getContext().isEmpty()){
             prompt.append("This is the context of the email: ").append(emailRequest.getContext());
         }
